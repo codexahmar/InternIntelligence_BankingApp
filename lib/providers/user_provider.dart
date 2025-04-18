@@ -3,7 +3,6 @@ import 'package:banking_app/models/user.dart';
 import 'package:banking_app/models/account.dart';
 import 'package:banking_app/utils/firebase_auth_service.dart';
 import 'package:banking_app/utils/firebase_firestore_service.dart';
-import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:banking_app/models/transaction.dart' as app_transaction;
 import 'dart:async';
@@ -38,7 +37,7 @@ class UserProvider extends ChangeNotifier {
         final userId = prefs.getString('current_user_id');
 
         if (userId != null) {
-          // Try to auto-login with stored user ID
+          // Get current Firebase user
           final firebaseUser = _authService.currentUser;
 
           if (firebaseUser != null) {
@@ -48,12 +47,25 @@ class UserProvider extends ChangeNotifier {
             if (appUser != null) {
               _currentUser = appUser;
               await loadUserAccounts();
+              notifyListeners();
+            } else {
+              // If user data not found, clear stored login state
+              await prefs.setBool('isLoggedIn', false);
+              await prefs.remove('current_user_id');
             }
+          } else {
+            // If Firebase user is not available, clear stored login state
+            await prefs.setBool('isLoggedIn', false);
+            await prefs.remove('current_user_id');
           }
         }
       }
     } catch (e) {
       debugPrint('Error initializing user provider: $e');
+      // Clear login state on error
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', false);
+      await prefs.remove('current_user_id');
     }
 
     _initialized = true;
@@ -226,11 +238,13 @@ class UserProvider extends ChangeNotifier {
   }
 
   // Clean up resources
+  @override
   void dispose() {
     for (var subscription in _accountSubscriptions) {
       subscription.cancel();
     }
     _accountSubscriptions.clear();
+    super.dispose();
   }
 
   // Load user accounts

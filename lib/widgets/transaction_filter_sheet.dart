@@ -47,6 +47,10 @@ class _TransactionFilterSheetState extends State<TransactionFilterSheet> {
 
   @override
   Widget build(BuildContext context) {
+    print(
+      'TransactionFilterSheet is being built',
+    ); // Debug log to confirm rendering
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       decoration: const BoxDecoration(

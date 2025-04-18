@@ -3,7 +3,7 @@ class Account {
   final String userId;
   final String accountNumber;
   final double balance;
-  final String type; 
+  final String type;
 
   Account({
     required this.id,
@@ -32,4 +32,12 @@ class Account {
       type: map['type'],
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Account && runtimeType == other.runtimeType && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 }

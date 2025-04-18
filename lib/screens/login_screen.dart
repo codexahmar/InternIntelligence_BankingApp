@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:banking_app/providers/user_provider.dart';
-import 'package:banking_app/screens/otp_screen.dart';
 import 'package:banking_app/screens/dashboard_screen.dart';
 import 'package:banking_app/screens/signup_screen.dart';
 

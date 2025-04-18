@@ -92,7 +92,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
             decoration: const InputDecoration(
               labelText: 'Amount',
               border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.currency_rupee),
+              prefixIcon: Icon(Icons.money),
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {

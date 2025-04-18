@@ -87,7 +87,7 @@ class _BudgetFormState extends State<BudgetForm> {
             decoration: const InputDecoration(
               labelText: 'Monthly Budget Amount',
               border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.currency_rupee),
+              prefixIcon: Icon(Icons.money),
               helperText: 'Set your monthly spending limit for this category',
             ),
             validator: (value) {

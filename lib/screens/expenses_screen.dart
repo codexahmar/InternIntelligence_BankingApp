@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'package:uuid/uuid.dart';
 import 'package:banking_app/models/expense.dart';
-import 'package:banking_app/providers/user_provider.dart';
-import 'package:banking_app/utils/budget_service.dart';
 
 class ExpensesScreen extends StatefulWidget {
   @override
@@ -12,8 +8,6 @@ class ExpensesScreen extends StatefulWidget {
 }
 
 class _ExpensesScreenState extends State<ExpensesScreen> {
-  final BudgetService _budgetService = BudgetService();
-  final Uuid _uuid = Uuid();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
@@ -55,12 +49,6 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
     });
 
     try {
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      final userId = userProvider.currentUser?.id ?? _uuid.v4();
-
-      // Load expenses
-      _expenses = await _budgetService.getUserExpenses(userId);
-
       // Sort expenses by date (most recent first)
       _expenses.sort((a, b) => b.date.compareTo(a.date));
     } catch (e) {
@@ -115,18 +103,6 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
     });
 
     try {
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      final userId = userProvider.currentUser?.id ?? _uuid.v4();
-
-      // Add expense
-      await _budgetService.addExpense(
-        userId: userId,
-        category: _selectedCategory!,
-        amount: amount,
-        description: _descriptionController.text,
-        date: _selectedDate,
-      );
-
       // Reload expenses
       await _loadExpenses();
 

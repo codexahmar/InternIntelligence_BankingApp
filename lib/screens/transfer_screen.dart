@@ -7,7 +7,6 @@ import 'package:banking_app/providers/user_provider.dart';
 import 'package:banking_app/utils/firebase_firestore_service.dart';
 import 'package:banking_app/screens/otp_screen.dart';
 
-
 class TransferScreen extends StatefulWidget {
   final Account? fromAccount;
 
@@ -71,24 +70,40 @@ class _TransferScreenState extends State<TransferScreen> {
         // Navigate to OTP verification screen
         if (!mounted) return;
 
-        Navigator.push(
+        await Navigator.push(
           context,
           MaterialPageRoute(
             builder:
                 (context) => OTPScreen(
-                  otp: otp, // For demo, pass the OTP
+                  otp: otp,
                   isTransfer: true,
                   onVerified: () async {
-                    // Once OTP verified, process transfer
-                    await _processTransfer(amount);
+                    // Process transfer and handle navigation
+                    try {
+                      await _processTransfer(amount);
 
-                    if (!mounted) return;
-                    Navigator.pop(context); // Close OTP screen
-                    Navigator.pop(context); // Return to previous screen
+                      if (!mounted) return;
+                      // Pop both screens at once to avoid state issues
+                      Navigator.popUntil(context, (route) => route.isFirst);
+                    } catch (e) {
+                      if (!mounted) return;
+                      Navigator.pop(context); // Just pop OTP screen on error
+                      setState(() {
+                        _errorMessage = 'Transfer failed: ${e.toString()}';
+                        _isLoading = false;
+                      });
+                    }
                   },
                 ),
           ),
         );
+
+        // Reset loading state if we return without completing transfer
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
       } catch (e) {
         setState(() {
           _errorMessage = 'Error: ${e.toString()}';
@@ -158,7 +173,6 @@ class _TransferScreenState extends State<TransferScreen> {
     final userAccounts = userProvider.userAccounts;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Transfer Money'), elevation: 0),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -276,8 +290,9 @@ class _TransferScreenState extends State<TransferScreen> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16),
                           DropdownButtonFormField<Account>(
+                            dropdownColor: Colors.white,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
@@ -290,19 +305,30 @@ class _TransferScreenState extends State<TransferScreen> {
                             value: _selectedFromAccount,
                             hint: const Text('Select source account'),
                             items:
-                                userAccounts.map((account) {
-                                  return DropdownMenuItem<Account>(
-                                    value: account,
-                                    child: Text(
-                                      '${account.type} - ${account.accountNumber} (₹${account.balance.toStringAsFixed(2)})',
-                                      style: const TextStyle(fontSize: 14),
-                                    ),
-                                  );
-                                }).toList(),
+                                userAccounts
+                                    .map(
+                                      (account) => DropdownMenuItem<Account>(
+                                        value: account,
+                                        key: ValueKey(
+                                          account.id,
+                                        ), // Add unique key
+                                        child: Text(
+                                          '${account.type} - ${account.accountNumber} (Rs${account.balance.toStringAsFixed(2)})',
+                                          style: const TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
                             onChanged: (Account? value) {
-                              setState(() {
-                                _selectedFromAccount = value;
-                              });
+                              if (value != null) {
+                                setState(() {
+                                  _selectedFromAccount = value;
+                                  // Reset destination account if it's the same as source
+                                  if (_selectedToAccount?.id == value.id) {
+                                    _selectedToAccount = null;
+                                  }
+                                });
+                              }
                             },
                             validator: (value) {
                               if (value == null) {
@@ -353,6 +379,7 @@ class _TransferScreenState extends State<TransferScreen> {
                             ),
                             const SizedBox(height: 16),
                             DropdownButtonFormField<Account>(
+                              dropdownColor: Colors.white,
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
@@ -371,22 +398,27 @@ class _TransferScreenState extends State<TransferScreen> {
                                             account.id !=
                                             _selectedFromAccount?.id,
                                       )
-                                      .map((account) {
-                                        return DropdownMenuItem<Account>(
+                                      .map(
+                                        (account) => DropdownMenuItem<Account>(
                                           value: account,
+                                          key: ValueKey(
+                                            account.id,
+                                          ), // Add unique key
                                           child: Text(
                                             '${account.type} - ${account.accountNumber}',
                                             style: const TextStyle(
                                               fontSize: 14,
                                             ),
                                           ),
-                                        );
-                                      })
+                                        ),
+                                      )
                                       .toList(),
                               onChanged: (Account? value) {
-                                setState(() {
-                                  _selectedToAccount = value;
-                                });
+                                if (value != null) {
+                                  setState(() {
+                                    _selectedToAccount = value;
+                                  });
+                                }
                               },
                               validator: (value) {
                                 if (!_isExternalTransfer && value == null) {
@@ -493,7 +525,7 @@ class _TransferScreenState extends State<TransferScreen> {
                             controller: _amountController,
                             decoration: InputDecoration(
                               labelText: 'Amount',
-                              prefixText: '₹ ',
+                              prefixText: 'Rs ',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),

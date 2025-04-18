@@ -12,7 +12,7 @@ class AccountsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
     final accounts = userProvider.userAccounts;
-    final currencyFormat = NumberFormat.currency(symbol: '₹');
+    final currencyFormat = NumberFormat.currency(symbol: 'Rs');
 
     double totalBalance = 0;
     for (var account in accounts) {
@@ -27,7 +27,7 @@ class AccountsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Accounts',
+                'My Banking Hub',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),

@@ -5,10 +5,7 @@ import 'package:banking_app/screens/accounts_screen.dart';
 import 'package:banking_app/screens/transactions_screen.dart';
 import 'package:banking_app/screens/budget_screen.dart';
 import 'package:banking_app/screens/profile_screen.dart';
-import 'package:banking_app/utils/account_service.dart';
-
-import 'package:banking_app/screens/login_screen.dart';
-import 'package:intl/intl.dart';
+import 'package:banking_app/utils/firebase_firestore_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -21,7 +18,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int _currentIndex = 0;
   bool _isLoading = true;
   final PageController _pageController = PageController();
-  final AccountService _accountService = AccountService();
+  final FirestoreService _firestoreService = FirestoreService();
 
   final List<Widget> _pages = [
     const AccountsScreen(),
@@ -70,7 +67,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       try {
         // Create demo accounts with unique account numbers
         final userId = userProvider.currentUser?.id ?? '';
-        await _accountService.createDemoAccounts(userId);
+        await _firestoreService.createDefaultAccounts(userId);
         await userProvider.loadUserAccounts();
       } catch (e) {
         print('Error creating demo accounts: $e');
@@ -86,14 +83,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   void _onItemTapped(int index) {
     _pageController.jumpToPage(index);
-  }
-
-  void _logout() {
-    Provider.of<UserProvider>(context, listen: false).logout();
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
-      (route) => false,
-    );
   }
 
   @override
