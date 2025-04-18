@@ -20,124 +20,112 @@ class AccountsScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'My Banking Hub',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
-              const SizedBox(height: 20),
-              // Total Balance Card
-              Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Colors.blue.shade800, Colors.blue.shade600],
+                  ),
                 ),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Colors.blue.shade800, Colors.blue.shade600],
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Total Balance',
+                      style: TextStyle(color: Colors.white70, fontSize: 14),
                     ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Total Balance',
-                        style: TextStyle(color: Colors.white70, fontSize: 14),
+                    const SizedBox(height: 8),
+                    Text(
+                      currencyFormat.format(totalBalance),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        currencyFormat.format(totalBalance),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _buildActionButton(
-                            context,
-                            'Add Money',
-                            Icons.add_circle_outline,
-                            () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Add money feature coming soon',
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                          _buildActionButton(
-                            context,
-                            'Transfer',
-                            Icons.swap_horiz,
-                            () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => TransferScreen(),
-                                ),
-                              );
-                            },
-                          ),
-                          _buildActionButton(
-                            context,
-                            'Statement',
-                            Icons.receipt_long,
-                            () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Statement feature coming soon',
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Your Accounts',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              Expanded(
-                child:
-                    accounts.isEmpty
-                        ? _buildEmptyState()
-                        : ListView.builder(
-                          itemCount: accounts.length,
-                          itemBuilder: (context, index) {
-                            return _buildAccountCard(
-                              context,
-                              accounts[index],
-                              currencyFormat,
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildActionButton(
+                          context,
+                          'Add Money',
+                          Icons.add_circle_outline,
+                          () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Add money feature coming soon'),
+                              ),
                             );
                           },
                         ),
+                        _buildActionButton(
+                          context,
+                          'Transfer',
+                          Icons.swap_horiz,
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => TransferScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                        _buildActionButton(
+                          context,
+                          'Statement',
+                          Icons.receipt_long,
+                          () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Statement feature coming soon'),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
+            ),
+
+            // const SizedBox(height: 24),
+            // const Text(
+            //   'Your Accounts',
+            //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            // ),
+            Expanded(
+              child:
+                  accounts.isEmpty
+                      ? _buildEmptyState()
+                      : ListView.builder(
+                        itemCount: accounts.length,
+                        itemBuilder: (context, index) {
+                          return _buildAccountCard(
+                            context,
+                            accounts[index],
+                            currencyFormat,
+                          );
+                        },
+                      ),
+            ),
+          ],
         ),
       ),
     );
@@ -290,12 +278,10 @@ class AccountsScreen extends StatelessWidget {
   }
 
   String _formatAccountNumber(String accountNumber) {
-    // If the account number already contains dashes, return as is
     if (accountNumber.contains('-')) {
       return accountNumber;
     }
 
-    // Format XXXXXXXXXXXXXXXX to XXXX-XXXX-XXXX-XXXX
     if (accountNumber.length == 16) {
       return '${accountNumber.substring(0, 4)}-'
           '${accountNumber.substring(4, 8)}-'
@@ -303,7 +289,6 @@ class AccountsScreen extends StatelessWidget {
           '${accountNumber.substring(12, 16)}';
     }
 
-    // Return as is if it doesn't match expected format
     return accountNumber;
   }
 }

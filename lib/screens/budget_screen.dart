@@ -210,6 +210,187 @@ class _BudgetScreenState extends State<BudgetScreen>
     }
   }
 
+  Future<void> _editExpense(Expense expense) async {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            top: 24,
+            left: 24,
+            right: 24,
+          ),
+          child: ExpenseForm(
+            isEditing: true,
+            initialExpense: expense,
+            onAddExpense: (category, amount, description, date) async {
+              try {
+                final updatedExpense = Expense(
+                  id: expense.id,
+                  userId: expense.userId,
+                  category: category,
+                  amount: amount,
+                  description: description,
+                  date: date,
+                );
+
+                await _firestoreService.updateExpense(updatedExpense);
+                await _loadData();
+
+                if (mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Expense updated successfully'),
+                    ),
+                  );
+                }
+              } catch (e) {
+                print('Error updating expense: $e');
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error updating expense: $e')),
+                  );
+                }
+              }
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _deleteExpense(String expenseId) async {
+    try {
+      await _firestoreService.deleteExpense(expenseId);
+      await _loadData();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Expense deleted successfully')),
+        );
+      }
+    } catch (e) {
+      print('Error deleting expense: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error deleting expense: $e')));
+      }
+    }
+  }
+
+  Future<void> _deleteBudget(String budgetId) async {
+    try {
+      await _firestoreService.deleteBudget(budgetId);
+      await _loadData();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Budget deleted successfully')),
+        );
+      }
+    } catch (e) {
+      print('Error deleting budget: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error deleting budget: $e')));
+      }
+    }
+  }
+
+  void _showBudgetActions(Budget budget) {
+    showModalBottomSheet(
+      context: context,
+      builder:
+          (context) => Container(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.blue.withOpacity(0.1),
+                    child: const Icon(Icons.edit, color: Colors.blue),
+                  ),
+                  title: const Text('Edit Budget'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showSetBudgetBottomSheet(existingBudget: budget);
+                  },
+                ),
+                ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.red.withOpacity(0.1),
+                    child: const Icon(Icons.delete, color: Colors.red),
+                  ),
+                  title: const Text('Delete Budget'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    showDialog(
+                      context: context,
+                      builder:
+                          (context) => AlertDialog(
+                            title: const Text('Delete Budget'),
+                            content: const Text(
+                              'Are you sure you want to delete this budget?',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  _deleteBudget(budget.id);
+                                },
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.red,
+                                ),
+                                child: const Text('Delete'),
+                              ),
+                            ],
+                          ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+    );
+  }
+
+  void _showSetBudgetBottomSheet({Budget? existingBudget}) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            top: 24,
+            left: 24,
+            right: 24,
+          ),
+          child: BudgetForm(
+            onSetBudget: _setBudget,
+            initialBudget: existingBudget,
+          ),
+        );
+      },
+    );
+  }
+
   void _showAddExpenseBottomSheet() {
     showModalBottomSheet(
       context: context,
@@ -226,27 +407,6 @@ class _BudgetScreenState extends State<BudgetScreen>
             right: 24,
           ),
           child: ExpenseForm(onAddExpense: _addExpense),
-        );
-      },
-    );
-  }
-
-  void _showSetBudgetBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            top: 24,
-            left: 24,
-            right: 24,
-          ),
-          child: BudgetForm(onSetBudget: _setBudget),
         );
       },
     );
@@ -295,6 +455,8 @@ class _BudgetScreenState extends State<BudgetScreen>
             budget: budget,
             totalSpent: totalSpent,
             expenses: categoryExpenses,
+            onEditExpense: _editExpense,
+            onDeleteExpense: _deleteExpense,
           ),
     );
   }
@@ -487,6 +649,10 @@ class _BudgetScreenState extends State<BudgetScreen>
                       budgetUtilization: _budgetUtilization,
                       onAddBudget: _showSetBudgetBottomSheet,
                       onCategoryTap: _navigateToExpenseDetails,
+                      onEditBudget:
+                          (budget) =>
+                              _showSetBudgetBottomSheet(existingBudget: budget),
+                      onDeleteBudget: (budget) => _deleteBudget(budget.id),
                     ),
                     ExpenseListTab(
                       expenses:
@@ -499,6 +665,8 @@ class _BudgetScreenState extends State<BudgetScreen>
                                 expenseDate.year == _selectedYear;
                           }).toList(),
                       onAddExpense: _showAddExpenseBottomSheet,
+                      onEditExpense: _editExpense,
+                      onDeleteExpense: _deleteExpense,
                     ),
                   ],
                 ),

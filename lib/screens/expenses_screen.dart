@@ -1,3 +1,4 @@
+import 'package:banking_app/utils/budget_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:banking_app/models/expense.dart';
@@ -16,7 +17,6 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
   List<Expense> _expenses = [];
   DateTime _selectedDate = DateTime.now();
 
-  // Predefined categories (same as in BudgetScreen)
   final List<String> _categories = [
     'Housing',
     'Transportation',
@@ -307,7 +307,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
             leading: CircleAvatar(
               backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
               child: Icon(
-                _getCategoryIcon(expense.category),
+                BudgetUtils.getCategoryIcon(expense.category),
                 color: Theme.of(context).primaryColor,
               ),
             ),
@@ -330,30 +330,5 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
         );
       },
     );
-  }
-
-  IconData _getCategoryIcon(String category) {
-    switch (category) {
-      case 'Housing':
-        return Icons.home;
-      case 'Transportation':
-        return Icons.directions_car;
-      case 'Food':
-        return Icons.restaurant;
-      case 'Utilities':
-        return Icons.power;
-      case 'Entertainment':
-        return Icons.movie;
-      case 'Healthcare':
-        return Icons.medical_services;
-      case 'Shopping':
-        return Icons.shopping_bag;
-      case 'Personal':
-        return Icons.person;
-      case 'Education':
-        return Icons.school;
-      default:
-        return Icons.attach_money;
-    }
   }
 }

@@ -503,6 +503,16 @@ class FirestoreService {
     }
   }
 
+  Future<bool> deleteBudget(String budgetId) async {
+    try {
+      await _budgetsCollection.doc(budgetId).delete();
+      return true;
+    } catch (e) {
+      debugPrint('Error deleting budget: $e');
+      return false;
+    }
+  }
+
   Future<List<Budget>> getUserBudgets(
     String userId,
     int month,
@@ -551,6 +561,37 @@ class FirestoreService {
     } catch (e) {
       debugPrint('Error creating expense: $e');
       throw Exception('Failed to create expense');
+    }
+  }
+
+  Future<bool> updateExpense(Expense expense) async {
+    try {
+      if (expense.id.isEmpty) {
+        throw Exception('Expense ID cannot be empty for update');
+      }
+
+      await _expensesCollection.doc(expense.id).update({
+        'category': expense.category,
+        'amount': expense.amount,
+        'description': expense.description,
+        'date': expense.date,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      return true;
+    } catch (e) {
+      debugPrint('Error updating expense: $e');
+      return false;
+    }
+  }
+
+  Future<bool> deleteExpense(String expenseId) async {
+    try {
+      await _expensesCollection.doc(expenseId).delete();
+      return true;
+    } catch (e) {
+      debugPrint('Error deleting expense: $e');
+      return false;
     }
   }
 

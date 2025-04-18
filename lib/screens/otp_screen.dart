@@ -7,9 +7,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class OTPScreen extends StatefulWidget {
   final VoidCallback onVerified;
-  final String? otp; // For demo
-  final String? phoneNumber; // To show masked phone number
-  final bool isTransfer; // Indicates if this is for transfer verification
+  final String? otp; 
+  final String? phoneNumber; 
+  final bool isTransfer; 
 
   const OTPScreen({
     Key? key,
@@ -34,9 +34,9 @@ class _OTPScreenState extends State<OTPScreen> {
   bool _isVerifying = false;
   String? _errorMessage;
   Timer? _autoFillTimer;
-  int _countdown = 120; // 2 minutes countdown for OTP expiration
+  int _countdown = 120; 
   Timer? _countdownTimer;
-  String? _verificationId; // For Firebase Phone Auth
+  String? _verificationId; 
 
   @override
   void initState() {
@@ -330,10 +330,6 @@ class _OTPScreenState extends State<OTPScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.isTransfer ? 'Verify Transfer' : 'Verify OTP'),
-        elevation: 0,
-      ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(

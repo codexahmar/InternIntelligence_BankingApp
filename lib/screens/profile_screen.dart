@@ -448,7 +448,7 @@ class ProfileScreen extends StatelessWidget {
                 child: const Text('Cancel'),
               ),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   final currentPassword = currentPasswordController.text.trim();
                   final newPassword = newPasswordController.text.trim();
                   final confirmPassword = confirmPasswordController.text.trim();
@@ -471,14 +471,50 @@ class ProfileScreen extends StatelessWidget {
                     return;
                   }
 
-                  // Here we would usually validate the current password and change it
-                  // For now, just show a success message
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Password changed successfully'),
-                    ),
-                  );
+                  // Validate new password requirements
+                  if (newPassword.length < 6) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Password must be at least 6 characters'),
+                      ),
+                    );
+                    return;
+                  }
+
+                  try {
+                    final userProvider = Provider.of<UserProvider>(
+                      context,
+                      listen: false,
+                    );
+
+                    // First reauthenticate with current password
+                    await userProvider.login(
+                      userProvider.currentUser!.email,
+                      currentPassword,
+                    );
+
+                    // If login successful, change password
+                    await userProvider.changePassword(newPassword);
+
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Password changed successfully'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          e.toString().contains('wrong-password')
+                              ? 'Current password is incorrect'
+                              : 'Failed to change password: ${e.toString()}',
+                        ),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 },
                 child: const Text('Change Password'),
               ),

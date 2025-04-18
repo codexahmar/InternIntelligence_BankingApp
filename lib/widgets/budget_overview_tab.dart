@@ -41,7 +41,6 @@ class BudgetOverviewTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Calculate overall progress
     double overallPercentage =
         totalBudget > 0 ? (totalSpending / totalBudget) * 100 : 0;
 
@@ -50,7 +49,6 @@ class BudgetOverviewTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Overall Budget Card
           Card(
             color: Colors.white,
             elevation: 4,
@@ -67,7 +65,7 @@ class BudgetOverviewTab extends StatelessWidget {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
-                  // Progress bar
+
                   Row(
                     children: [
                       Expanded(
@@ -115,7 +113,7 @@ class BudgetOverviewTab extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  // Budget details
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -144,7 +142,7 @@ class BudgetOverviewTab extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          // Spending by Category Chart
+
           if (categorySpending.isNotEmpty) ...[
             const Text(
               'Spending by Category',
@@ -179,7 +177,7 @@ class BudgetOverviewTab extends StatelessWidget {
             ),
           ],
           const SizedBox(height: 24),
-          // Top Categories
+
           if (categorySpending.isNotEmpty) ...[
             const Text(
               'Top Spending Categories',

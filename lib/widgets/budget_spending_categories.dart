@@ -17,7 +17,6 @@ class SpendingCategories extends StatelessWidget {
         categorySpending.entries.toList()
           ..sort((a, b) => b.value.compareTo(a.value));
 
-    // Take top 3 categories
     final topCategories = entries.take(3).toList();
 
     return Column(

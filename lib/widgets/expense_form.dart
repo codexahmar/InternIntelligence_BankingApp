@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:banking_app/models/expense.dart';
 
 class ExpenseForm extends StatefulWidget {
   final Function(String category, double amount, String description, int date)
   onAddExpense;
+  final bool isEditing;
+  final Expense? initialExpense;
 
-  const ExpenseForm({Key? key, required this.onAddExpense}) : super(key: key);
+  const ExpenseForm({
+    Key? key,
+    required this.onAddExpense,
+    this.isEditing = false,
+    this.initialExpense,
+  }) : super(key: key);
 
   @override
   State<ExpenseForm> createState() => _ExpenseFormState();
@@ -18,7 +26,6 @@ class _ExpenseFormState extends State<ExpenseForm> {
   String? _selectedCategory;
   DateTime _selectedDate = DateTime.now();
 
-  // List of expense categories
   final List<String> _categories = [
     'Food',
     'Shopping',
@@ -36,10 +43,49 @@ class _ExpenseFormState extends State<ExpenseForm> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.initialExpense != null) {
+      _amountController.text = widget.initialExpense!.amount.toString();
+      _descriptionController.text = widget.initialExpense!.description;
+      _selectedCategory = widget.initialExpense!.category;
+      _selectedDate = DateTime.fromMillisecondsSinceEpoch(
+        widget.initialExpense!.date,
+      );
+    }
+  }
+
+  @override
   void dispose() {
     _amountController.dispose();
     _descriptionController.dispose();
     super.dispose();
+  }
+
+  Future<void> _selectDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+    );
+
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
+  }
+
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      final amount = double.parse(_amountController.text);
+      final description = _descriptionController.text;
+      final date = _selectedDate.millisecondsSinceEpoch;
+
+      widget.onAddExpense(_selectedCategory!, amount, description, date);
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -50,20 +96,20 @@ class _ExpenseFormState extends State<ExpenseForm> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Add New Expense',
+          Text(
+            widget.isEditing ? 'Edit Expense' : 'Add New Expense',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 16),
-          // Category Dropdown
+          SizedBox(height: 16),
+
           DropdownButtonFormField<String>(
             value: _selectedCategory,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Category',
               border: OutlineInputBorder(),
               prefixIcon: Icon(Icons.category),
             ),
-            hint: const Text('Select Category'),
+            hint: Text('Select Category'),
             isExpanded: true,
             items:
                 _categories.map((category) {
@@ -84,117 +130,86 @@ class _ExpenseFormState extends State<ExpenseForm> {
               return null;
             },
           ),
-          const SizedBox(height: 16),
-          // Amount Field
+          SizedBox(height: 16),
+
           TextFormField(
             controller: _amountController,
             keyboardType: TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Amount',
               border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.money),
+              prefixIcon: Icon(Icons.attach_money),
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter an amount';
               }
-              if (double.tryParse(value) == null) {
+              final amount = double.tryParse(value);
+              if (amount == null || amount <= 0) {
                 return 'Please enter a valid amount';
-              }
-              if (double.parse(value) <= 0) {
-                return 'Amount must be greater than zero';
               }
               return null;
             },
           ),
-          const SizedBox(height: 16),
-          // Description Field
+          SizedBox(height: 16),
+
           TextFormField(
             controller: _descriptionController,
-            decoration: const InputDecoration(
-              labelText: 'Description (Optional)',
+            decoration: InputDecoration(
+              labelText: 'Description',
               border: OutlineInputBorder(),
               prefixIcon: Icon(Icons.description),
             ),
-            maxLines: 2,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter a description';
+              }
+              return null;
+            },
           ),
-          const SizedBox(height: 16),
-          // Date Picker
+          SizedBox(height: 16),
+
           InkWell(
-            onTap: () => _selectDate(context),
-            child: InputDecorator(
-              decoration: const InputDecoration(
-                labelText: 'Date',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.calendar_today),
+            onTap: _selectDate,
+            child: Container(
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(4),
               ),
-              child: Text(DateFormat('MMM d, yyyy').format(_selectedDate)),
+              child: Row(
+                children: [
+                  Icon(Icons.calendar_today, color: Colors.grey[600]),
+                  SizedBox(width: 8),
+                  Text(
+                    DateFormat('MMM dd, yyyy').format(_selectedDate),
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
+
           SizedBox(
             width: double.infinity,
-            height: 50,
+            height: 48,
             child: ElevatedButton(
               onPressed: _submitForm,
+              child: Text(
+                widget.isEditing ? 'Update Expense' : 'Add Expense',
+                style: TextStyle(fontSize: 16),
+              ),
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: const Text('Add Expense', style: TextStyle(fontSize: 16)),
             ),
           ),
+          SizedBox(height: 16),
         ],
       ),
     );
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now(),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: Theme.of(context).primaryColor,
-              onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: Colors.black,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-      });
-    }
-  }
-
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      final amount = double.parse(_amountController.text);
-      final description = _descriptionController.text.trim();
-      final timestamp = _selectedDate.millisecondsSinceEpoch;
-
-      widget.onAddExpense(_selectedCategory!, amount, description, timestamp);
-
-      // Clear form
-      _amountController.clear();
-      _descriptionController.clear();
-      setState(() {
-        _selectedCategory = null;
-        _selectedDate = DateTime.now();
-      });
-
-      // Close the bottom sheet
-      Navigator.pop(context);
-    }
   }
 }

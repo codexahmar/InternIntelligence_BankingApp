@@ -146,7 +146,29 @@ The migration involved:
 
 ## Screenshots
 
-_Coming soon_
+### Dashboard
+
+![Dashboard](screenshots/dashboard.png)
+
+### Transaction History
+
+![Transaction History](screenshots/transactionhistory.png)
+
+### Transfer Money
+
+![Transfer](screenshots/transfer.png)
+
+### Budget Management
+
+![Budgets](screenshots/budgets.png)
+
+### Account Overview
+
+![Overview](screenshots/overview.png)
+
+### Settings
+
+![Settings](screenshots/settings.png)
 
 ## Future Enhancements
 

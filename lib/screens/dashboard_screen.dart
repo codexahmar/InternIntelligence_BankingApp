@@ -6,6 +6,7 @@ import 'package:banking_app/screens/transactions_screen.dart';
 import 'package:banking_app/screens/budget_screen.dart';
 import 'package:banking_app/screens/profile_screen.dart';
 import 'package:banking_app/utils/firebase_firestore_service.dart';
+import 'package:banking_app/widgets/custom_dashboard_app_bar.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -65,7 +66,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     if (userProvider.userAccounts.isEmpty) {
       try {
-        // Create demo accounts with unique account numbers
         final userId = userProvider.currentUser?.id ?? '';
         await _firestoreService.createDefaultAccounts(userId);
         await userProvider.loadUserAccounts();
@@ -92,7 +92,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return WillPopScope(
       onWillPop: () async {
-        // Prevent back navigation to login screen
         return false;
       },
       child: Scaffold(
@@ -101,10 +100,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ? const Center(child: CircularProgressIndicator())
                 : Column(
                   children: [
-                    // Custom App Bar
-                    _buildCustomAppBar(context, user?.name ?? 'User'),
-
-                    // Main Content
+                    CustomDashboardAppBar(
+                      userName: user?.name ?? 'User',
+                      currentIndex: _currentIndex,
+                    ),
                     Expanded(
                       child: PageView(
                         controller: _pageController,
@@ -141,102 +140,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildCustomAppBar(BuildContext context, String userName) {
-    return Container(
-      padding: const EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Theme.of(context).primaryColor,
-            Theme.of(context).primaryColor.withOpacity(0.7),
-          ],
-        ),
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(25),
-          bottomRight: Radius.circular(25),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            spreadRadius: 1,
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Welcome back,',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.8),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    userName,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                ),
-                padding: const EdgeInsets.all(10),
-                child: const Icon(
-                  Icons.notifications_none,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          if (_currentIndex == 0)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.info_outline, color: Colors.white, size: 20),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'Manage your accounts, track your expenses and transfer money securely.',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-        ],
       ),
     );
   }

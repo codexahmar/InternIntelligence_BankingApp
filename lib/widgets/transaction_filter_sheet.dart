@@ -47,9 +47,7 @@ class _TransactionFilterSheetState extends State<TransactionFilterSheet> {
 
   @override
   Widget build(BuildContext context) {
-    print(
-      'TransactionFilterSheet is being built',
-    ); // Debug log to confirm rendering
+    print('TransactionFilterSheet is being built');
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
@@ -78,7 +76,7 @@ class _TransactionFilterSheetState extends State<TransactionFilterSheet> {
             ],
           ),
           const SizedBox(height: 24),
-          // Date Range Selector
+
           const Text(
             'Date Range',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -116,7 +114,7 @@ class _TransactionFilterSheetState extends State<TransactionFilterSheet> {
             ),
           ),
           const SizedBox(height: 20),
-          // Transaction Type Filter
+
           const Text(
             'Transaction Type',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -152,7 +150,7 @@ class _TransactionFilterSheetState extends State<TransactionFilterSheet> {
                 }).toList(),
           ),
           const SizedBox(height: 20),
-          // Account Filter
+
           const Text(
             'Account',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -193,7 +191,7 @@ class _TransactionFilterSheetState extends State<TransactionFilterSheet> {
             ),
           ),
           const SizedBox(height: 30),
-          // Filter Buttons
+
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

@@ -17,7 +17,6 @@ class BudgetPieChart extends StatelessWidget {
         categorySpending.entries.toList()
           ..sort((a, b) => b.value.compareTo(a.value));
 
-    // Limit to top 5 categories, and combine the rest
     final topCategories = entries.take(5).toList();
     double otherAmount = 0;
     if (entries.length > 5) {
@@ -29,7 +28,6 @@ class BudgetPieChart extends StatelessWidget {
       }
     }
 
-    // Prepare chart data
     final sections = <PieChartSectionData>[];
     final categoryColors = [
       Colors.blue,
