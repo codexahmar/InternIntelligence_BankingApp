@@ -144,31 +144,18 @@ The migration involved:
 - Creating security rules for data access
 - Adding two-factor authentication with OTP
 
+
 ## Screenshots
 
-### Dashboard
+Here are some screenshots of the application:
 
-![Dashboard](screenshots/dashboard.png)
+| Dashboard                                          | Transaction History                            | Transfer Money                                         |
+| -------------------------------------------------- | ---------------------------------------------- | -------------------------------------------- |
+| <img src="screenshots/dashboard.png" width="250"> | <img src="screenshots/transactionhistory.png" width="250"> | <img src="screenshots/transfer.png" width="250"> |
 
-### Transaction History
-
-![Transaction History](screenshots/transactionhistory.png)
-
-### Transfer Money
-
-![Transfer](screenshots/transfer.png)
-
-### Budget Management
-
-![Budgets](screenshots/budgets.png)
-
-### Account Overview
-
-![Overview](screenshots/overview.png)
-
-### Settings
-
-![Settings](screenshots/settings.png)
+| Budget Management                                        | Account Overview                                        | Settings                                        |
+| ---------------------------------------------------- | ----------------------------------------------------- | ----------------------------------------------- |
+| <img src="screenshots/budgets.png" width="250"> | <img src="screenshots/overview.png" width="250"> | <img src="screenshots/settings.png" width="250"> |
 
 ## Future Enhancements
 
